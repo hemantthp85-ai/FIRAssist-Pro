@@ -137,7 +137,7 @@ export default function FIRGeneratorPage() {
 
       // Fetch legal analysis, generate-final-fir
       const response = await fetch(
-        "http://127.0.0.1:8000/api/generate-final-fir",
+        "https://firassist-pro.onrender.com/api/generate-final-fir",
         {
           method: "POST",
           headers: {
@@ -160,12 +160,12 @@ export default function FIRGeneratorPage() {
       let tempRequired: string[] = []
       let tempUploaded: any[] = []
       try {
-        const docsResponse = await fetch(`http://127.0.0.1:8000/api/evidence/required-documents/${encodeURIComponent(crimeType)}`)
+        const docsResponse = await fetch(`https://firassist-pro.onrender.com/api/evidence/required-documents/${encodeURIComponent(crimeType)}`)
         const docsData = await docsResponse.json()
         tempRequired = [...(docsData.common_documents || []), ...(docsData.crime_specific_documents || [])]
         setRequiredDocs(tempRequired)
 
-        const evidenceResponse = await fetch(`http://127.0.0.1:8000/api/evidence/case/${caseId}`)
+        const evidenceResponse = await fetch(`https://firassist-pro.onrender.com/api/evidence/case/${caseId}`)
         const evidenceData = await evidenceResponse.json()
         tempUploaded = evidenceData.uploaded_files || []
         setUploadedFiles(tempUploaded)

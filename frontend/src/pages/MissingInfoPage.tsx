@@ -66,7 +66,7 @@ export default function MissingInfoPage() {
       setCaseData(data)
 
       const nextFieldResponse = await fetch(
-        "http://127.0.0.1:8000/api/investigation/next-field",
+        "https://firassist-pro.onrender.com/api/investigation/next-field",
         {
           method: "POST",
           headers: {
@@ -89,7 +89,7 @@ export default function MissingInfoPage() {
       }
 
       const response = await fetch(
-        "http://127.0.0.1:8000/api/investigation/next-question",
+        "https://firassist-pro.onrender.com/api/investigation/next-question",
         {
           method: "POST",
           headers: {
@@ -117,7 +117,7 @@ export default function MissingInfoPage() {
 
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/api/investigation/submit-answer",
+        "https://firassist-pro.onrender.com/api/investigation/submit-answer",
         {
           method: "POST",
           headers: {
@@ -153,7 +153,7 @@ export default function MissingInfoPage() {
       setAnswer("")
 
       const nextFieldResponse = await fetch(
-        "http://127.0.0.1:8000/api/investigation/next-field",
+        "https://firassist-pro.onrender.com/api/investigation/next-field",
         {
           method: "POST",
           headers: {
@@ -176,7 +176,7 @@ export default function MissingInfoPage() {
       }
 
       const nextQuestionResponse = await fetch(
-        "http://127.0.0.1:8000/api/investigation/next-question",
+        "https://firassist-pro.onrender.com/api/investigation/next-question",
         {
           method: "POST",
           headers: {

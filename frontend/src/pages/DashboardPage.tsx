@@ -77,11 +77,11 @@ export default function DashboardPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const statsRes = await fetch('http://127.0.0.1:8000/api/dashboard/stats')
+        const statsRes = await fetch('https://firassist-pro.onrender.com/api/dashboard/stats')
         const statsData = await statsRes.json()
         setStats(statsData)
 
-        const complaintsRes = await fetch('http://127.0.0.1:8000/api/complaints?limit=4')
+        const complaintsRes = await fetch('https://firassist-pro.onrender.com/api/complaints?limit=4')
         const complaintsData = await complaintsRes.json()
         setRecentComplaints(complaintsData.complaints || [])
       } catch (err) {

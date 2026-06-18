@@ -19,7 +19,7 @@ export default function ActiveCasesPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const res = await fetch('http://127.0.0.1:8000/api/complaints?limit=100')
+        const res = await fetch('https://firassist-pro.onrender.com/api/complaints?limit=100')
         const data = await res.json()
         setComplaints(data.complaints || [])
       } catch (err) {

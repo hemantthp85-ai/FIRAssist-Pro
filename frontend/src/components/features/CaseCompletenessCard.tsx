@@ -19,7 +19,7 @@ export default function CaseCompletenessCard({ caseId, crimeType, caseData }: Ca
         return
       }
       try {
-        const response = await fetch(`http://127.0.0.1:8000/api/evidence/case/${caseId}`)
+        const response = await fetch(`https://firassist-pro.onrender.com/api/evidence/case/${caseId}`)
         const data = await response.json()
         const uploaded = data.uploaded_files || []
         setEvidenceUploaded(uploaded.length > 0)

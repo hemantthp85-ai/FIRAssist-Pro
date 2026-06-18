@@ -21,13 +21,13 @@ export default function EvidenceSummaryCard({ caseId, crimeType }: EvidenceSumma
     setLoading(true)
     try {
       // 1. Fetch required documents
-      const docsResponse = await fetch(`http://127.0.0.1:8000/api/evidence/required-documents/${encodeURIComponent(crimeType)}`)
+      const docsResponse = await fetch(`https://firassist-pro.onrender.com/api/evidence/required-documents/${encodeURIComponent(crimeType)}`)
       const docsData = await docsResponse.json()
       const allDocs = [...(docsData.common_documents || []), ...(docsData.crime_specific_documents || [])]
       setRequiredDocs(allDocs)
 
       // 2. Fetch case evidence metadata
-      const evidenceResponse = await fetch(`http://127.0.0.1:8000/api/evidence/case/${caseId}`)
+      const evidenceResponse = await fetch(`https://firassist-pro.onrender.com/api/evidence/case/${caseId}`)
       const evidenceData = await evidenceResponse.json()
       setUploadedFiles(evidenceData.uploaded_files || [])
     } catch (err) {

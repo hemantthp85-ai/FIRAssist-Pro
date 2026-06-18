@@ -36,7 +36,7 @@ export default function AnalyticsPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const res = await fetch('http://127.0.0.1:8000/api/dashboard/analytics')
+        const res = await fetch('https://firassist-pro.onrender.com/api/dashboard/analytics')
         const json = await res.json()
         setData(json)
       } catch (err) {

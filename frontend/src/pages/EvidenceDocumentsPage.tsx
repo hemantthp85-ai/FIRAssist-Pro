@@ -63,7 +63,7 @@ export default function EvidenceDocumentsPage() {
       setConfidence(apiConfidence)
 
       // Fetch required documents list
-      const apiUrl = `http://127.0.0.1:8000/api/evidence/required-documents/${encodeURIComponent(detectedCrime)}`
+      const apiUrl = `https://firassist-pro.onrender.com/api/evidence/required-documents/${encodeURIComponent(detectedCrime)}`
       console.log("DEBUG: API request URL:", apiUrl)
       const reqDocsResponse = await fetch(apiUrl)
       const reqDocsData = await reqDocsResponse.json()
@@ -72,7 +72,7 @@ export default function EvidenceDocumentsPage() {
       setCrimeDocs(reqDocsData.crime_specific_documents || [])
 
       // Fetch case uploads and notes
-      const caseEvidenceResponse = await fetch(`http://127.0.0.1:8000/api/evidence/case/${caseId}`)
+      const caseEvidenceResponse = await fetch(`https://firassist-pro.onrender.com/api/evidence/case/${caseId}`)
       const caseEvidenceData = await caseEvidenceResponse.json()
       setUploadedFiles(caseEvidenceData.uploaded_files || [])
       setNotes(caseEvidenceData.notes || '')
@@ -95,7 +95,7 @@ export default function EvidenceDocumentsPage() {
   const handleVerifyToggle = async (docName: string, currentStatus: string) => {
     const newStatus = currentStatus === 'Verified' ? 'Uploaded' : 'Verified'
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/evidence/case/${caseId}/verify`, {
+      const response = await fetch(`https://firassist-pro.onrender.com/api/evidence/case/${caseId}/verify`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -121,7 +121,7 @@ export default function EvidenceDocumentsPage() {
   const handleSaveNotes = async () => {
     setSavingNotes(true)
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/evidence/case/${caseId}/notes`, {
+      const response = await fetch(`https://firassist-pro.onrender.com/api/evidence/case/${caseId}/notes`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

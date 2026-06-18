@@ -76,7 +76,7 @@ export default function EvidenceUploadCard({
       formData.append('doc_name', docName)
       formData.append('file', file)
 
-      const response = await fetch('http://127.0.0.1:8000/api/evidence/upload', {
+      const response = await fetch('https://firassist-pro.onrender.com/api/evidence/upload', {
         method: 'POST',
         body: formData
       })

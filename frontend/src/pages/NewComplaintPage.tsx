@@ -91,7 +91,7 @@ export default function NewComplaintPage() {
           formData.append('file', audioBlob, 'complaint.wav')
           formData.append('translate', 'true')
 
-          const response = await fetch('http://127.0.0.1:8000/api/forthright/transcribe', {
+          const response = await fetch('https://firassist-pro.onrender.com/api/forthright/transcribe', {
             method: 'POST',
             body: formData
           })
@@ -137,7 +137,7 @@ export default function NewComplaintPage() {
       const complaint = textComplaint || transcript
 
       const response = await fetch(
-        "http://127.0.0.1:8000/api/generate-fir",
+        "https://firassist-pro.onrender.com/api/generate-fir",
         {
           method: "POST",
           headers: {
