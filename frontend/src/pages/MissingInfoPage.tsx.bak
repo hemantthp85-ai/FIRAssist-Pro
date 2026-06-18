@@ -1,0 +1,457 @@
+import { useState, useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+
+import {
+  ArrowRight,
+  CheckCircle2,
+  MessageSquare,
+  Send
+} from 'lucide-react'
+
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+
+import { useToast } from '@/hooks'
+import { cn } from '@/lib/utils'
+
+
+
+
+export default function MissingInfoPage() {
+  const navigate = useNavigate()
+  const { toast } = useToast()
+
+  const [question, setQuestion] = useState("")
+  const [field, setField] = useState("")
+  const [answer, setAnswer] = useState("")
+  const [loading, setLoading] = useState(true)
+  const [complete, setComplete] = useState(false)
+
+  const [caseData, setCaseData] = useState<any>({})
+
+  const [history, setHistory] = useState<any[]>([])
+
+  useEffect(() => {
+
+    loadFirstQuestion()
+
+  }, [])
+
+  const loadFirstQuestion = async () => {
+
+    try {
+
+      const savedData =
+        localStorage.getItem("caseData")
+
+      const data =
+        savedData
+          ? JSON.parse(savedData)
+          : {}
+
+      setCaseData(data)
+
+      const nextFieldResponse = await fetch(
+        "http://127.0.0.1:8000/api/investigation/next-field",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            case_data: data
+          })
+        }
+      )
+
+      const nextFieldData =
+        await nextFieldResponse.json()
+
+      if (
+        nextFieldData.status === "complete"
+      ) {
+
+        setComplete(true)
+
+        setQuestion(
+          "Investigation Complete. Click Generate FIR to continue."
+        )
+
+        setField("")
+
+        setLoading(false)
+
+        return
+      }
+
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/investigation/next-question",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            field: nextFieldData.field,
+            case_data: data
+          })
+        }
+      )
+
+      const result =
+        await response.json()
+
+      setField(result.field)
+      setQuestion(result.question)
+
+      setLoading(false)
+
+    } catch (error) {
+
+      console.error(error)
+
+      toast(
+        "Unable to load investigation",
+        "error"
+      )
+
+    }
+
+  }
+
+  const submitAnswer = async () => {
+
+    if (!answer.trim()) return
+
+    try {
+
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/investigation/submit-answer",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            field,
+            answer,
+            case_data: caseData
+          })
+        }
+      )
+
+      const updated = await response.json()
+
+      const updatedCaseData =
+        updated.case_data
+
+      setHistory(prev => [
+        ...prev,
+        {
+          question,
+          answer
+        }
+      ])
+
+      setCaseData(
+        updatedCaseData
+      )
+
+      localStorage.setItem(
+        "caseData",
+        JSON.stringify(updatedCaseData)
+      )
+
+      setAnswer("")
+
+      const nextFieldResponse = await fetch(
+        "http://127.0.0.1:8000/api/investigation/next-field",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            case_data: updatedCaseData
+          })
+        }
+      )
+
+      const nextFieldData =
+        await nextFieldResponse.json()
+
+      if (
+        nextFieldData.status === "complete"
+      ) {
+
+        toast(
+          "Investigation Complete",
+          "success"
+        )
+
+        setComplete(true)
+
+        setField("")
+
+        setQuestion(
+          "Investigation Complete. Click Generate FIR to continue."
+        )
+
+        return
+      }
+
+      const nextQuestionResponse =
+        await fetch(
+          "http://127.0.0.1:8000/api/investigation/next-question",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              field: nextFieldData.field,
+              case_data: updatedCaseData
+            })
+          }
+        )
+
+
+      const nextQuestion =
+        await nextQuestionResponse.json()
+
+      setField(
+        nextQuestion.field
+      )
+
+      setQuestion(
+        nextQuestion.question
+      )
+
+      toast(
+        "Answer saved",
+        "success"
+      )
+
+    } catch (error) {
+
+      console.error(error)
+
+    }
+
+  }
+
+  const handleContinue = () => {
+
+    localStorage.setItem(
+      "caseData",
+      JSON.stringify(caseData)
+    )
+
+    navigate(
+      "/complaint/new/fir"
+    )
+
+  }
+
+return (
+  <div className="space-y-6 max-w-5xl mx-auto">
+
+    {/* Header */}
+
+    <div>
+      <h1 className="text-3xl font-bold">
+        Missing Information Detection
+      </h1>
+
+      <p className="text-muted-foreground mt-1">
+        AI Investigation Assistant is collecting remaining details
+      </p>
+    </div>
+
+    {/* Steps */}
+
+    <div className="flex items-center gap-4">
+      {[
+        'Complaint Intake',
+        'Information Extraction',
+        'Review & Confirm',
+        'FIR Generation'
+      ].map((step, i) => (
+
+        <div
+          key={step}
+          className="flex items-center gap-2"
+        >
+
+          <div
+            className={cn(
+              'w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors',
+              i === 2
+                ? 'bg-accent text-white'
+                : i < 2
+                ? 'bg-success text-white'
+                : 'bg-secondary text-muted-foreground'
+            )}
+          >
+
+            {i < 2
+              ? <CheckCircle2 className="w-4 h-4" />
+              : i + 1}
+
+          </div>
+
+          <span
+            className={cn(
+              'text-sm hidden sm:block',
+              i === 2
+                ? 'text-foreground'
+                : 'text-muted-foreground'
+            )}
+          >
+            {step}
+          </span>
+
+          {i < 3 && (
+            <ArrowRight className="w-4 h-4 text-muted-foreground hidden sm:block" />
+          )}
+
+        </div>
+
+      ))}
+    </div>
+
+    {/* Investigation Chat */}
+
+    <Card className="bg-card/50 backdrop-blur border-white/10">
+
+      <CardContent className="p-6">
+
+        <div className="flex items-center gap-2 mb-6">
+
+          <MessageSquare className="w-5 h-5 text-accent" />
+
+          <h2 className="text-xl font-semibold">
+            AI Investigation Assistant
+          </h2>
+
+        </div>
+
+        {/* Previous Questions */}
+
+        {history.map((item, index) => (
+
+          <div
+            key={index}
+            className="mb-4"
+          >
+
+            <div className="bg-accent/10 rounded-lg p-3 mb-2">
+
+              <strong>AI:</strong>
+
+              <p className="mt-1">
+                {item.question}
+              </p>
+
+            </div>
+
+            <div className="bg-success/10 rounded-lg p-3">
+
+              <strong>Citizen:</strong>
+
+              <p className="mt-1">
+                {item.answer}
+              </p>
+
+            </div>
+
+          </div>
+
+        ))}
+
+        {/* Current Question */}
+
+        {loading ? (
+
+          <div className="text-center py-10">
+
+            <p className="text-muted-foreground">
+              Loading investigation...
+            </p>
+
+          </div>
+
+        ) : (
+
+          <div>
+
+            <div className="bg-accent/10 rounded-lg p-4 mb-4">
+
+              <strong>AI:</strong>
+
+              <p className="mt-2">
+                {question}
+              </p>
+
+            </div>
+
+            <div className="flex gap-2">
+
+              <Input
+                disabled={complete}
+                value={answer}
+                onChange={(e) =>
+                  setAnswer(e.target.value)
+                }
+                placeholder="Type your answer..."
+                className="flex-1"
+              />
+
+              <Button
+                disabled={complete}
+                onClick={submitAnswer}
+              >
+                <Send className="w-4 h-4" />
+              </Button>
+
+            </div>
+
+          </div>
+
+        )}
+
+      </CardContent>
+
+    </Card>
+
+    {/* Navigation */}
+
+    <div className="flex justify-between items-center pt-4">
+
+      <Link
+        to="/complaint/new/extraction"
+      >
+
+        <Button variant="outline">
+          Back
+        </Button>
+
+      </Link>
+
+      <Button
+        size="lg"
+        onClick={handleContinue}
+      >
+
+        Generate FIR
+
+        <ArrowRight className="w-5 h-5 ml-2" />
+
+      </Button>
+
+    </div>
+
+  </div>
+)
+}

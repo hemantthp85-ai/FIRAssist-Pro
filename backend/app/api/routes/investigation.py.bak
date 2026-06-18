@@ -1,0 +1,233 @@
+from fastapi import APIRouter
+import json
+
+from backend.app.agents.investigation_agent import (
+    generate_question
+)
+
+from backend.app.agents.field_manager import (
+    get_next_missing_field
+)
+
+from backend.app.utils.performance import (
+    cached_call,
+    timed_agent
+)
+
+router = APIRouter()
+
+
+BASE_REQUIRED_FIELDS = [
+    "victim_name",
+    "victim_phone",
+    "victim_father_name",
+    "victim_age",
+    "victim_gender",
+    "victim_address",
+    "incident_date",
+    "incident_time",
+    "location"
+]
+
+VEHICLE_THEFT_FIELDS = [
+    "vehicle_number",
+    "vehicle_model",
+    "vehicle_color",
+    "property_value"
+]
+
+CYBER_FRAUD_FIELDS = [
+    "bank_name",
+    "transaction_id",
+    "amount_lost"
+]
+
+PROPERTY_THEFT_FIELDS = [
+    "property_type",
+    "property_value"
+]
+
+
+def get_case_offence_text(case_data: dict) -> str:
+
+    possible_offences = case_data.get(
+        "possible_offences",
+        []
+    )
+
+    if isinstance(possible_offences, list):
+
+        offence_text = " ".join(
+            str(offence) for offence in possible_offences
+        )
+
+    else:
+
+        offence_text = str(possible_offences)
+
+    return " ".join([
+        offence_text,
+        str(case_data.get("crime_type", "")),
+        str(case_data.get("property_type", "")),
+        str(case_data.get("incident_summary", ""))
+    ]).lower()
+
+
+def get_required_fields(case_data: dict):
+
+    required_fields = list(
+        BASE_REQUIRED_FIELDS
+    )
+
+    offence_text = get_case_offence_text(
+        case_data
+    )
+
+    is_vehicle_theft = (
+        "vehicle" in offence_text
+        or "bike" in offence_text
+        or "motorcycle" in offence_text
+        or "car" in offence_text
+        or bool(str(case_data.get("vehicle_number", "")).strip())
+        or bool(str(case_data.get("vehicle_model", "")).strip())
+    )
+
+    is_cyber_fraud = (
+        "cyber" in offence_text
+        or "fraud" in offence_text
+        or "upi" in offence_text
+        or "bank" in offence_text
+        or "transaction" in offence_text
+    )
+
+    is_property_theft = (
+        "theft" in offence_text
+        or "stolen" in offence_text
+        or "property" in offence_text
+        or bool(str(case_data.get("property_type", "")).strip())
+    )
+
+    if is_vehicle_theft:
+
+        required_fields.extend(
+            VEHICLE_THEFT_FIELDS
+        )
+
+    elif is_cyber_fraud:
+
+        required_fields.extend(
+            CYBER_FRAUD_FIELDS
+        )
+
+    elif is_property_theft:
+
+        required_fields.extend(
+            PROPERTY_THEFT_FIELDS
+        )
+
+    return required_fields
+
+
+@timed_agent("investigation_agent")
+def run_investigation_agent(field, case_data):
+    return cached_call(
+        "investigation_agent",
+        {
+            "field": field,
+            "case_data": case_data
+        },
+        generate_question,
+        field,
+        case_data
+    )
+
+
+@timed_agent("field_manager")
+def run_field_manager(case_data, required_fields):
+    return get_next_missing_field(
+        case_data,
+        required_fields
+    )
+
+
+@router.post("/next-question")
+async def next_question(data: dict):
+
+    field = data.get(
+        "field",
+        ""
+    )
+
+    case_data = data.get(
+        "case_data",
+        {}
+    )
+
+    response = run_investigation_agent(
+        field,
+        case_data
+    )
+
+    try:
+
+        return json.loads(
+            response
+        )
+
+    except:
+
+        return {
+            "field": field,
+            "question": response
+        }
+@router.post("/submit-answer")
+async def submit_answer(data: dict):
+
+    case_data = data.get(
+        "case_data",
+        {}
+    )
+
+    field = data.get(
+        "field",
+        ""
+    )
+
+    answer = data.get(
+        "answer",
+        ""
+    )
+
+    case_data[field] = answer
+
+    return {
+        "status": "success",
+        "case_data": case_data
+    }
+@router.post("/next-field")
+async def next_field(data: dict):
+
+    case_data = data.get(
+        "case_data",
+        {}
+    )
+
+    required_fields = get_required_fields(
+        case_data
+    )
+
+    next_field = run_field_manager(
+        case_data,
+        required_fields
+    )
+
+    if next_field is None:
+
+        return {
+            "status": "complete"
+        }
+
+    return {
+        "status": "next",
+        "field": next_field
+    }

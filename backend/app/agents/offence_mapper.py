@@ -1,0 +1,494 @@
+"""
+Rule-based Offence to BNS Section Mapper
+
+Maps crime types to Bharatiya Nyaya Sanhita (BNS) 2023 sections with high accuracy.
+Supports multiple variations of crime names and provides structured legal recommendations.
+"""
+
+import re
+from typing import List, Dict, Tuple
+from backend.app.utils.performance import timed_agent
+
+
+class OffenceMapper:
+    """Maps offence types to BNS sections with high accuracy."""
+    
+    # Comprehensive BNS mappings
+    OFFENCE_MAPPINGS = {
+        # Property Crimes
+        "theft": {
+            "sections": ["305", "304"],
+            "title": "Theft",
+            "description": "Dishonestly taking movable property without consent",
+            "keywords": ["stolen", "stealing", "theft", "stole", "burglary"],
+            "variations": ["bike theft", "car theft", "vehicle theft", "mobile theft", "phone theft", "wallet theft", "purse theft"]
+        },
+        
+        # Stalking and Harassment
+        "stalking": {
+            "sections": ["354D"],
+            "title": "Stalking",
+            "description": "Following, contacting, or attempting contact with intent to cause fear/annoyance",
+            "keywords": ["stalked", "stalking", "following", "pursuing"],
+            "variations": ["cyber stalking", "persistent following", "unwanted contact"]
+        },
+        
+        "harassment": {
+            "sections": ["354A", "356"],
+            "title": "Harassment",
+            "description": "Repeated unwanted conduct causing harassment or alarming conduct",
+            "keywords": ["harassed", "harassment", "annoyed", "insulting", "abusive language"],
+            "variations": ["sexual harassment", "workplace harassment", "online harassment"]
+        },
+        
+        # Sexual Offences
+        "sexual harassment": {
+            "sections": ["354", "354A"],
+            "title": "Sexual Harassment",
+            "description": "Non-consensual sexual contact or conduct",
+            "keywords": ["sexual harassment", "touched inappropriately", "groped", "unwanted touch"],
+            "variations": ["molestation", "indecent assault", "improper physical contact"]
+        },
+        
+        "rape": {
+            "sections": ["375", "376"],
+            "title": "Rape",
+            "description": "Sexual assault and rape",
+            "keywords": ["rape", "raped", "sexual assault", "non-consensual"],
+            "variations": ["gang rape", "attempted rape"]
+        },
+        
+        "outraging modesty": {
+            "sections": ["354", "356"],
+            "title": "Outraging Modesty",
+            "description": "Acts intended to outrage modesty with sexual intent",
+            "keywords": ["outraged modesty", "indecent act", "lewd", "obscene"],
+            "variations": ["indecent exposure", "obscene gesture"]
+        },
+        
+        # Crimes Against Person
+        "assault": {
+            "sections": ["351", "352"],
+            "title": "Assault/Criminal Force",
+            "description": "Using force with intent to cause injury or knowledge that it may cause injury",
+            "keywords": ["assault", "attacked", "hit", "punched", "kicked", "beating"],
+            "variations": ["physical assault", "violent attack", "beating"]
+        },
+        
+        "hurt": {
+            "sections": ["323", "324", "325"],
+            "title": "Hurt",
+            "description": "Causing bodily pain/injury",
+            "keywords": ["hurt", "injured", "pain", "wound", "cut", "injury"],
+            "variations": ["simple hurt", "grievous hurt", "causing injury"]
+        },
+        
+        "grievous hurt": {
+            "sections": ["325", "326"],
+            "title": "Grievous Hurt",
+            "description": "Eight specific types of hurt designated as grievous",
+            "keywords": ["grievous", "serious injury", "fracture", "severe wound"],
+            "variations": ["serious injury", "life-threatening injury"]
+        },
+        
+        "wrongful restraint": {
+            "sections": ["339", "340"],
+            "title": "Wrongful Restraint",
+            "description": "Restraining a person from proceeding in a direction they have right to proceed",
+            "keywords": ["restrained", "confined", "prevented", "blocked"],
+            "variations": ["unlawful restraint", "wrongful confinement"]
+        },
+        
+        "wrongful confinement": {
+            "sections": ["342", "343"],
+            "title": "Wrongful Confinement",
+            "description": "Wrongfully confining a person knowing it is likely to cause injury",
+            "keywords": ["confined", "locked up", "imprisoned", "trapped"],
+            "variations": ["unlawful imprisonment", "false imprisonment"]
+        },
+        
+        "kidnapping": {
+            "sections": ["359", "360", "361"],
+            "title": "Kidnapping",
+            "description": "Inducing or taking away a person with intent to cause wrongful restraint",
+            "keywords": ["kidnapped", "kidnapping", "abduction", "taken away"],
+            "variations": ["child abduction", "unlawful abduction"]
+        },
+        
+        "abduction": {
+            "sections": ["365", "366", "367"],
+            "title": "Abduction",
+            "description": "Causing a person to go from one place to another with intent to cause confinement",
+            "keywords": ["abducted", "abduction", "taken away"],
+            "variations": ["child abduction", "elopement"]
+        },
+        
+        # Crimes Involving Criminal Breach of Trust
+        "criminal breach of trust": {
+            "sections": ["408", "409"],
+            "title": "Criminal Breach of Trust",
+            "description": "Dishonest misappropriation or conversion of property held in trust",
+            "keywords": ["breach of trust", "misappropriated", "embezzlement"],
+            "variations": ["embezzlement", "misappropriation", "breach"]
+        },
+        
+        # Fraud and Cheating
+        "cheating": {
+            "sections": ["420"],
+            "title": "Cheating",
+            "description": "Inducing delivery of property by deception with intent to cause wrongful gain",
+            "keywords": ["cheated", "fraud", "scam", "deception", "tricked"],
+            "variations": ["financial fraud", "identity fraud", "investment fraud"]
+        },
+        
+        "cyber fraud": {
+            "sections": ["419", "420", "66C", "66D"],
+            "title": "Cyber Fraud",
+            "description": "Cheating and dishonesty via electronic means",
+            "keywords": ["online fraud", "cyber fraud", "upi fraud", "digital fraud", "phishing"],
+            "variations": ["online scam", "phishing", "identity theft", "digital scam", "email fraud"]
+        },
+        
+        "forgery": {
+            "sections": ["463", "464"],
+            "title": "Forgery",
+            "description": "Making false documents with intent to use or knowing they will be used",
+            "keywords": ["forged", "forgery", "fake document", "forged signature"],
+            "variations": ["document forgery", "signature forgery", "identity forgery"]
+        },
+        
+        # Criminal Intimidation
+        "criminal intimidation": {
+            "sections": ["503", "504", "505"],
+            "title": "Criminal Intimidation",
+            "description": "Threatening any person with injury to person, property or reputation",
+            "keywords": ["threatened", "threat", "intimidated", "blackmail"],
+            "variations": ["death threat", "threat to property", "extortion threat"]
+        },
+        
+        "extortion": {
+            "sections": ["383", "384", "385", "386"],
+            "title": "Extortion",
+            "description": "Putting a person in fear of injury to extort property/valuables",
+            "keywords": ["extorted", "extortion", "blackmail", "ransomed", "demanded money"],
+            "variations": ["blackmail", "ransom", "protection money"]
+        },
+        
+        # Defamation
+        "defamation": {
+            "sections": ["499", "500"],
+            "title": "Defamation",
+            "description": "Making false statements damaging reputation",
+            "keywords": ["defamed", "defamation", "libel", "slander", "character attack"],
+            "variations": ["slander", "libel", "character assassination", "false accusation"]
+        },
+        
+        # Attempt to Commit Offence
+        "attempt to commit offence": {
+            "sections": ["511"],
+            "title": "Attempt to Commit Offence",
+            "description": "Attempting to commit an offence",
+            "keywords": ["attempted", "attempt", "tried to", "endeavored to"],
+            "variations": ["attempted theft", "attempted rape", "attempted murder", "attempted fraud"]
+        },
+        
+        # Dowry-Related Crimes
+        "dowry death": {
+            "sections": ["304B"],
+            "title": "Dowry Death",
+            "description": "Death of woman caused by any burns or bodily injury in relation to demands for dowry",
+            "keywords": ["dowry death", "bride burning", "dowry related death"],
+            "variations": ["death due to dowry", "bride death"]
+        },
+        
+        "cruelty": {
+            "sections": ["498A"],
+            "title": "Cruelty by Husband/Relatives",
+            "description": "Cruelty towards women by husband or relatives",
+            "keywords": ["cruelty", "cruel", "mistreatment", "abuse", "domestic violence"],
+            "variations": ["spousal abuse", "domestic abuse", "family cruelty", "marital cruelty"]
+        },
+        
+        # Conspiracy
+        "conspiracy": {
+            "sections": ["120A", "120B"],
+            "title": "Conspiracy",
+            "description": "Agreement to commit an illegal act",
+            "keywords": ["conspiracy", "conspired", "planned together", "agreement"],
+            "variations": ["criminal conspiracy", "hatching plot"]
+        },
+        
+        # Criminal Damage/Mischief
+        "criminal mischief": {
+            "sections": ["425", "426"],
+            "title": "Criminal Mischief",
+            "description": "Damaging or destroying property with intent to cause loss",
+            "keywords": ["damaged", "destroyed", "vandalism", "mischief"],
+            "variations": ["property damage", "vandalism", "property destruction"]
+        },
+        
+        # Drug-Related Offences
+        "drug trafficking": {
+            "sections": ["21", "22", "28"],
+            "title": "Drug Trafficking (NDPS Act)",
+            "description": "Manufacture, possession, sale, purchase, transport of drugs",
+            "keywords": ["drugs", "narcotics", "trafficking", "possession", "ganja", "heroin", "cocaine"],
+            "variations": ["drug peddling", "substance trafficking", "illicit drugs"]
+        },
+        
+        # Counterfeiting
+        "counterfeiting": {
+            "sections": ["489A", "489B"],
+            "title": "Counterfeiting Currency",
+            "description": "Counterfeiting or forging currency notes",
+            "keywords": ["counterfeit", "fake currency", "forged notes"],
+            "variations": ["fake notes", "counterfeit money"]
+        },
+        
+        # Public Official Misconduct
+        "abuse of authority": {
+            "sections": ["218", "219", "220"],
+            "title": "Abuse of Authority by Public Servant",
+            "description": "Public servant disobeying law or acting with intent to cause wrongful loss",
+            "keywords": ["corrupt", "abuse of power", "misconduct", "bribery"],
+            "variations": ["police brutality", "official misconduct", "corruption"]
+        },
+    }
+    
+    @classmethod
+    def map_offence(cls, offence_type: str) -> Dict:
+        """
+        Map an offence type to BNS sections.
+        
+        Args:
+            offence_type: The type of offence (e.g., "theft", "stalking")
+            
+        Returns:
+            Dictionary with sections, title, description, and confidence score
+        """
+        
+        offence_type = offence_type.lower().strip()
+        
+        # Direct match
+        if offence_type in cls.OFFENCE_MAPPINGS:
+            mapping = cls.OFFENCE_MAPPINGS[offence_type]
+            return {
+                "offence": offence_type,
+                "sections": mapping["sections"],
+                "title": mapping["title"],
+                "description": mapping["description"],
+                "confidence": "high",
+                "source": "direct_mapping"
+            }
+        
+        # Variation match
+        for main_offence, mapping in cls.OFFENCE_MAPPINGS.items():
+            for variation in mapping.get("variations", []):
+                if offence_type == variation.lower():
+                    return {
+                        "offence": offence_type,
+                        "sections": mapping["sections"],
+                        "title": mapping["title"],
+                        "description": mapping["description"],
+                        "confidence": "high",
+                        "source": "variation_mapping"
+                    }
+        
+        # Keyword match
+        for main_offence, mapping in cls.OFFENCE_MAPPINGS.items():
+            for keyword in mapping.get("keywords", []):
+                if keyword.lower() in offence_type:
+                    return {
+                        "offence": main_offence,
+                        "sections": mapping["sections"],
+                        "title": mapping["title"],
+                        "description": mapping["description"],
+                        "confidence": "medium",
+                        "source": "keyword_matching"
+                    }
+        
+        # No match found
+        return {
+            "offence": offence_type,
+            "sections": [],
+            "title": "Unknown Offence",
+            "description": "",
+            "confidence": "low",
+            "source": "no_match"
+        }
+    
+    @classmethod
+    def map_multiple_offences(cls, offences: List[str]) -> List[Dict]:
+        """
+        Map multiple offence types to BNS sections.
+        
+        Args:
+            offences: List of offence types
+            
+        Returns:
+            List of mappings with sections and details
+        """
+        
+        if not offences:
+            return []
+        
+        mappings = []
+        for offence in offences:
+            mapping = cls.map_offence(offence)
+            mappings.append(mapping)
+        
+        return mappings
+    
+    @classmethod
+    def get_recommended_sections(cls, offences: List[str]) -> Dict:
+        """
+        Get recommended sections for multiple offences.
+        
+        Args:
+            offences: List of offence types
+            
+        Returns:
+            Dictionary with unique sections and their details
+        """
+        
+        mappings = cls.map_multiple_offences(offences)
+        
+        # Collect unique sections
+        sections_dict = {}
+        section_confidence = {}
+        
+        for mapping in mappings:
+            if mapping["sections"]:
+                for section in mapping["sections"]:
+                    if section not in sections_dict:
+                        sections_dict[section] = {
+                            "section": section,
+                            "title": mapping["title"],
+                            "description": mapping["description"],
+                            "offences": [mapping["offence"]],
+                            "confidence": mapping["confidence"]
+                        }
+                        section_confidence[section] = mapping["confidence"]
+                    else:
+                        if mapping["offence"] not in sections_dict[section]["offences"]:
+                            sections_dict[section]["offences"].append(mapping["offence"])
+        
+        # Sort sections by confidence: high > medium > low
+        confidence_order = {"high": 0, "medium": 1, "low": 2}
+        sorted_sections = sorted(
+            sections_dict.values(),
+            key=lambda x: confidence_order.get(x["confidence"], 3)
+        )
+        
+        return {
+            "recommended_sections": sorted_sections,
+            "section_numbers": [s["section"] for s in sorted_sections],
+            "total_sections": len(sorted_sections),
+            "offence_mappings": mappings,
+            "has_matches": len(sorted_sections) > 0
+        }
+    
+    @classmethod
+    def extract_offences_from_text(cls, text: str) -> List[str]:
+        """
+        Extract possible offences from complaint text.
+        
+        Args:
+            text: Complaint text
+            
+        Returns:
+            List of detected offences
+        """
+        
+        if not text:
+            return []
+        
+        detected_offences = []
+        text_lower = text.lower()
+        
+        # Check for each offence's keywords
+        for main_offence, mapping in cls.OFFENCE_MAPPINGS.items():
+            keywords = mapping.get("keywords", [])
+            for keyword in keywords:
+                if keyword.lower() in text_lower:
+                    if main_offence not in detected_offences:
+                        detected_offences.append(main_offence)
+                    break
+        
+        return detected_offences
+
+
+# Convenience functions
+def map_offence(offence_type: str) -> Dict:
+    """Map a single offence type to BNS sections."""
+    return OffenceMapper.map_offence(offence_type)
+
+
+@timed_agent("offence_mapper.recommended_sections")
+def get_recommended_sections(offences: List[str]) -> Dict:
+    """Get recommended sections for multiple offences."""
+    from backend.app.utils.performance import cached_call
+    return cached_call(
+        "legal_mapping",
+        offences,
+        OffenceMapper.get_recommended_sections,
+        offences
+    )
+
+
+@timed_agent("offence_mapper.extract_offences")
+def extract_offences_from_text(text: str) -> List[str]:
+    """Extract offences from complaint text."""
+    return OffenceMapper.extract_offences_from_text(text)
+
+
+if __name__ == "__main__":
+    
+    # Test cases
+    print("\n" + "="*80)
+    print("OFFENCE MAPPING TEST SUITE")
+    print("="*80)
+    
+    # Test 1: Single offence mapping
+    print("\nTest 1: Single Offence Mapping")
+    print("-" * 80)
+    
+    test_offences = ["theft", "stalking", "cyber fraud", "rape", "dowry death"]
+    
+    for offence in test_offences:
+        result = map_offence(offence)
+        print(f"\n📋 Offence: {offence}")
+        print(f"   Sections: {result['sections']}")
+        print(f"   Title: {result['title']}")
+        print(f"   Confidence: {result['confidence']}")
+    
+    # Test 2: Multiple offence mapping
+    print("\n\nTest 2: Multiple Offence Mapping")
+    print("-" * 80)
+    
+    multiple_offences = ["theft", "stalking", "cyber fraud"]
+    result = get_recommended_sections(multiple_offences)
+    
+    print(f"\n📋 Offences: {multiple_offences}")
+    print(f"✓ Recommended Sections: {result['section_numbers']}")
+    print(f"✓ Total Sections: {result['total_sections']}")
+    
+    for section in result["recommended_sections"]:
+        print(f"\n  Section {section['section']}: {section['title']}")
+        print(f"  Description: {section['description']}")
+        print(f"  Offences: {section['offences']}")
+    
+    # Test 3: Extract offences from text
+    print("\n\nTest 3: Extract Offences from Text")
+    print("-" * 80)
+    
+    test_texts = [
+        "My phone was stolen near the bus stand",
+        "Someone stalked me for weeks and made threats",
+        "I lost money in an online UPI fraud",
+    ]
+    
+    for text in test_texts:
+        offences = extract_offences_from_text(text)
+        print(f"\n📝 Text: {text}")
+        print(f"✓ Detected Offences: {offences}")

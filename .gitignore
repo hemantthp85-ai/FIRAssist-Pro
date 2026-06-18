@@ -1,0 +1,28 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+
+# Build
+dist/
+build/
+
+# Database
+*.db
+
+# Audio
+*.wav
+*.mp3
+
+# Environment
+.env
+
+# Cache
+.cache/
+
+# Vector DB
+qdrant_data/
