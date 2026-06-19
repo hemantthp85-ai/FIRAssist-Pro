@@ -2,34 +2,34 @@ from fastapi import APIRouter
 import uuid
 import json
 
-from backend.app.agents.extraction_agent import (
+from app.agents.extraction_agent import (
     extract_complaint_details
 )
 
-from backend.app.orchestrator.case_orchestrator import (
+from app.orchestrator.case_orchestrator import (
     run_case_orchestration_async
 )
 
-from backend.app.agents.fir_writer_agent import (
+from app.agents.fir_writer_agent import (
     generate_fir_narrative
 )
 
-from backend.app.agents.fir_generator import (
+from app.agents.fir_generator import (
     generate_fir as build_fir
 )
 
-from backend.app.agents.legal_agent import (
+from app.agents.legal_agent import (
     recommend_sections
 )
 
-from backend.app.utils.performance import (
+from app.utils.performance import (
     cached_call,
     timed_agent
 )
 
-from backend.app.db.database import SessionLocal
-from backend.app.db.services import CaseService
-from backend.app.db.repositories import ComplaintRepository
+from app.db.database import SessionLocal
+from app.db.services import CaseService
+from app.db.repositories import ComplaintRepository
 
 
 router = APIRouter()
@@ -47,7 +47,7 @@ def run_extraction_agent(complaint):
 
 @timed_agent("validation_agent")
 def run_validation_agent(case_data):
-    from backend.app.agents.validation_agent import (
+    from app.agents.validation_agent import (
         validate_case_data
     )
 
