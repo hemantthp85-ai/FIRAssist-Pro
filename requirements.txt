@@ -28,7 +28,7 @@ Pillow==12.1.0
 
 google-generativeai==0.8.3
 google-genai==2.8.0
-
+gunicorn
 langchain==0.3.30
 langchain-community==0.3.31
 langchain-core==0.3.86
