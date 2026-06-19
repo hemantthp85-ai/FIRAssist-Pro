@@ -1,56 +1,56 @@
-from backend.app.agents.extraction_agent import (
+from app.agents.extraction_agent import (
     extract_complaint_details
 )
 
-from backend.app.agents.investigation_planner import (
+from app.agents.investigation_planner import (
     build_investigation_plan
 )
 
-from backend.app.agents.investigation_agent import (
+from app.agents.investigation_agent import (
     generate_question
 )
 
-from backend.app.agents.field_manager import (
+from app.agents.field_manager import (
     get_missing_fields
 )
 
-from backend.app.agents.answer_validator import (
+from app.agents.answer_validator import (
     validate_answer
 )
 
-from backend.app.agents.legal_agent import (
+from app.agents.legal_agent import (
     recommend_sections
 )
 
-from backend.app.sessions.session_agent import (
+from app.sessions.session_agent import (
     FIRSession
 )
 
-from backend.app.agents.fir_generator import (
+from app.agents.fir_generator import (
     generate_fir
 )
 
-from backend.app.agents.fir_writer_agent import (
+from app.agents.fir_writer_agent import (
     generate_fir_narrative
 )
 
-from backend.app.agents.investigation_report_agent import (
+from app.agents.investigation_report_agent import (
     generate_investigation_report
 )
 
-from backend.app.agents.evidence_agent import (
+from app.agents.evidence_agent import (
     analyze_evidence_requirements
 )
 
-from backend.app.agents.case_timeline_agent import (
+from app.agents.case_timeline_agent import (
     generate_case_timeline
 )
 
-from backend.app.agents.risk_assessment_agent import (
+from app.agents.risk_assessment_agent import (
     assess_case_risk
 )
 
-from backend.app.agents.action_recommendation_agent import (
+from app.agents.action_recommendation_agent import (
     recommend_actions
 )
 
@@ -78,7 +78,7 @@ def main():
         extracted_json = json.loads(
             extracted
         )
-        from backend.app.agents.validation_agent import (
+        from app.agents.validation_agent import (
             validate_case_data
         )
 

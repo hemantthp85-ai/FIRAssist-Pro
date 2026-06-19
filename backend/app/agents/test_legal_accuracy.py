@@ -2,7 +2,7 @@
 Test suite for Rule-based Legal Analysis with Offence Mapping
 """
 
-from backend.app.agents.offence_mapper import (
+from app.agents.offence_mapper import (
     OffenceMapper,
     get_recommended_sections,
     extract_offences_from_text,

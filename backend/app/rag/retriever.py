@@ -1,6 +1,6 @@
 from qdrant_client import QdrantClient
-from backend.app.rag.embedder import get_embedding
-from backend.app.utils.performance import (
+from app.rag.embedder import get_embedding
+from app.utils.performance import (
     cached_call,
     timed_agent
 )

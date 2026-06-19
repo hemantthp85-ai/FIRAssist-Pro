@@ -7,7 +7,7 @@ Supports multiple variations of crime names and provides structured legal recomm
 
 import re
 from typing import List, Dict, Tuple
-from backend.app.utils.performance import timed_agent
+from app.utils.performance import timed_agent
 
 
 class OffenceMapper:

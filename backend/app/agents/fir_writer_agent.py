@@ -1,8 +1,8 @@
-from backend.app.agents.fir_narrative_agent import FIRNarrativeGenerator
+from app.agents.fir_narrative_agent import FIRNarrativeGenerator
 import json
 
 
-from backend.app.utils.performance import timed_agent
+from app.utils.performance import timed_agent
 
 
 @timed_agent("fir_writer_agent.function")

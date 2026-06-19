@@ -1,9 +1,9 @@
-from backend.app.rag.ingest_bns import (
+from app.rag.ingest_bns import (
     extract_pdf_text,
     chunk_text
 )
 
-from backend.app.rag.embedder import (
+from app.rag.embedder import (
     get_embedding
 )
 

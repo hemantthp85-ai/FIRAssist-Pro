@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
-from backend.app.db.database import get_db
-from backend.app.db.repositories import ComplaintRepository, AnalyticsRepository
-from backend.app.db.services import CaseService
+from app.db.database import get_db
+from app.db.repositories import ComplaintRepository, AnalyticsRepository
+from app.db.services import CaseService
 import logging
 
 logger = logging.getLogger("fir_copilot.api.dashboard")

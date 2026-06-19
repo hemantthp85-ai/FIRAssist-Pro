@@ -1,5 +1,5 @@
 from sentence_transformers import SentenceTransformer
-from backend.app.utils.performance import (
+from app.utils.performance import (
     cached_call,
     timed_agent
 )

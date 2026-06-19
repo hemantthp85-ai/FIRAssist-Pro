@@ -1,8 +1,8 @@
 from urllib import response
 
 from app.models.qwen_loader import ask_qwen
-from backend.app.utils.performance import timed_agent
-from backend.app.agents.date_time_agent import (
+from app.utils.performance import timed_agent
+from app.agents.date_time_agent import (
     extract_date_and_time,
     parse_incident_timeline
 )

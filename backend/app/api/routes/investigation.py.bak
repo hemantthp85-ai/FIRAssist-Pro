@@ -1,15 +1,15 @@
 from fastapi import APIRouter
 import json
 
-from backend.app.agents.investigation_agent import (
+from app.agents.investigation_agent import (
     generate_question
 )
 
-from backend.app.agents.field_manager import (
+from app.agents.field_manager import (
     get_next_missing_field
 )
 
-from backend.app.utils.performance import (
+from app.utils.performance import (
     cached_call,
     timed_agent
 )

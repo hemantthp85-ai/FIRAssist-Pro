@@ -1,5 +1,5 @@
 import logging
-from backend.app.models.qwen_loader import ask_qwen
+from app.models.qwen_loader import ask_qwen
 
 logger = logging.getLogger("fir_copilot.services.translator")
 

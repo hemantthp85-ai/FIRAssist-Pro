@@ -3,8 +3,8 @@ import shutil
 import uuid
 import torch
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
-from backend.app.services.transcriber import transcribe_audio
-from backend.app.services.translator import translate_to_english
+from app.services.transcriber import transcribe_audio
+from app.services.translator import translate_to_english
 import logging
 
 logger = logging.getLogger("fir_copilot.api.forthright")

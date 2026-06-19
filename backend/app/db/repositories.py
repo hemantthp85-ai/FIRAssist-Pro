@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func, or_, and_
 import datetime
-from backend.app.db.models import (
+from app.db.models import (
     Complaint,
     FIR,
     LegalAnalysis,

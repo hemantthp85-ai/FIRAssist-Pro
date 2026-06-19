@@ -7,7 +7,7 @@ Supports multiple variations of crime names and provides structured legal recomm
 
 import re
 from typing import List, Dict, Tuple
-from backend.app.utils.performance import timed_agent
+from app.utils.performance import timed_agent
 
 
 class OffenceMapper:
@@ -427,7 +427,7 @@ def map_offence(offence_type: str) -> Dict:
 @timed_agent("offence_mapper.recommended_sections")
 def get_recommended_sections(offences: List[str]) -> Dict:
     """Get recommended sections for multiple offences."""
-    from backend.app.utils.performance import cached_call
+    from app.utils.performance import cached_call
     return cached_call(
         "legal_mapping",
         offences,

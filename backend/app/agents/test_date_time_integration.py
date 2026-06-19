@@ -2,9 +2,9 @@
 Test script to validate the Date & Time Extraction Agent integration
 """
 
-from backend.app.agents.extraction_agent import extract_complaint_details
-from backend.app.agents.validation_agent import validate_case_data
-from backend.app.agents.date_time_agent import extract_date_and_time, parse_incident_timeline
+from app.agents.extraction_agent import extract_complaint_details
+from app.agents.validation_agent import validate_case_data
+from app.agents.date_time_agent import extract_date_and_time, parse_incident_timeline
 import json
 
 

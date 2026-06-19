@@ -1,5 +1,5 @@
-from backend.app.models.qwen_loader import ask_qwen
-from backend.app.utils.performance import cached_call, timed_agent
+from app.models.qwen_loader import ask_qwen
+from app.utils.performance import cached_call, timed_agent
 import json
 import re
 

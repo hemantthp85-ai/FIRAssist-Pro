@@ -11,7 +11,7 @@ from sqlalchemy import (
     Boolean
 )
 from sqlalchemy.orm import relationship
-from backend.app.db.database import Base
+from app.db.database import Base
 
 
 class User(Base):

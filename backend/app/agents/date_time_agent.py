@@ -2,7 +2,7 @@ import re
 from datetime import datetime, timedelta
 from dateutil import parser as dateutil_parser
 from dateutil.relativedelta import relativedelta
-from backend.app.utils.performance import timed_agent
+from app.utils.performance import timed_agent
 
 
 # Month mapping for various formats

@@ -1,6 +1,6 @@
 import re
 
-from backend.app.rag.ingest_bns import extract_pdf_text
+from app.rag.ingest_bns import extract_pdf_text
 
 
 def extract_sections():

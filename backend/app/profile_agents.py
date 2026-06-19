@@ -6,10 +6,10 @@ import asyncio
 import json
 import time
 import re
-from backend.app.agents.extraction_agent import extract_complaint_details
-from backend.app.agents.validation_agent import validate_case_data
-from backend.app.orchestrator.case_orchestrator import run_case_orchestration_async
-from backend.app.utils.performance import get_slowest_agents, _timings, _cache
+from app.agents.extraction_agent import extract_complaint_details
+from app.agents.validation_agent import validate_case_data
+from app.orchestrator.case_orchestrator import run_case_orchestration_async
+from app.utils.performance import get_slowest_agents, _timings, _cache
 
 def clean_json_str(s):
     start = s.find('{')

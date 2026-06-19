@@ -1,8 +1,8 @@
 import json
 import logging
 from sqlalchemy.orm import Session
-from backend.app.db.database import SessionLocal
-from backend.app.db.models import (
+from app.db.database import SessionLocal
+from app.db.models import (
     Complaint,
     FIR,
     LegalAnalysis,
@@ -12,7 +12,7 @@ from backend.app.db.models import (
     InvestigationReport,
     ActionRecommendation
 )
-from backend.app.db.repositories import ComplaintRepository, OfficerRepository, FIRRepository
+from app.db.repositories import ComplaintRepository, OfficerRepository, FIRRepository
 
 logger = logging.getLogger("fir_copilot.db.services")
 

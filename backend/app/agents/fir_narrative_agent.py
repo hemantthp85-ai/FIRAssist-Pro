@@ -8,7 +8,7 @@ suitable for official filing and legal purposes.
 import json
 from typing import Dict, List
 from datetime import datetime
-from backend.app.utils.performance import timed_agent
+from app.utils.performance import timed_agent
 
 
 class FIRNarrativeGenerator:

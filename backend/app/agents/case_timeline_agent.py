@@ -1,11 +1,11 @@
-from backend.app.models.qwen_loader import ask_qwen
-from backend.app.utils.performance import timed_agent
+from app.models.qwen_loader import ask_qwen
+from app.utils.performance import timed_agent
 import json
 
 @timed_agent("timeline_agent.function")
 def generate_case_timeline(case_data):
     try:
-        from backend.app.agents.master_agent import run_master_analysis
+        from app.agents.master_agent import run_master_analysis
         master = run_master_analysis(case_data)
         if isinstance(master, str):
             master = json.loads(master)

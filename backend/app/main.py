@@ -9,28 +9,28 @@ from app.rag.embedder import warm_embedding_model
 from app.db.database import engine, Base
 import app.db.models as db_models
 
-from backend.app.api.routes.fir import router as fir_router
-from backend.app.api.routes.investigation import (
+from app.api.routes.fir import router as fir_router
+from app.api.routes.investigation import (
     router as investigation_router
 )
-from backend.app.api.routes.dashboard import (
+from app.api.routes.dashboard import (
     router as dashboard_router
 )
-from backend.app.api.routes.forthright import (
+from app.api.routes.forthright import (
     router as forthright_router
 )
-from backend.app.api.routes.evidence_routes import (
+from app.api.routes.evidence_routes import (
     router as evidence_router
 )
-from backend.app.models.qwen_loader import (
+from app.models.qwen_loader import (
     warm_qwen_model,
     get_model_status
 )
-from backend.app.rag.embedder import (
+from app.rag.embedder import (
     warm_embedding_model
 )
-from backend.app.db.database import engine, Base
-import backend.app.db.models as db_models
+from app.db.database import engine, Base
+import app.db.models as db_models
 
 logging.basicConfig(
     level=logging.INFO

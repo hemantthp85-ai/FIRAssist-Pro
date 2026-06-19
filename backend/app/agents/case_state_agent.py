@@ -1,5 +1,5 @@
 import json
-from backend.app.utils.performance import timed_agent
+from app.utils.performance import timed_agent
 
 
 # =====================================

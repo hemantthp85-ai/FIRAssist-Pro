@@ -1,8 +1,8 @@
 from qdrant_client import QdrantClient
 from qdrant_client.models import PointStruct
 
-from backend.app.rag.section_parser import extract_sections
-from backend.app.rag.embedder import get_embedding
+from app.rag.section_parser import extract_sections
+from app.rag.embedder import get_embedding
 
 COLLECTION_NAME = "bns_sections"
 

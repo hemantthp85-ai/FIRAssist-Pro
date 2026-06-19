@@ -1,4 +1,4 @@
-from backend.app.utils.performance import timed_agent
+from app.utils.performance import timed_agent
 
 
 def get_missing_fields(case_data, required_fields):

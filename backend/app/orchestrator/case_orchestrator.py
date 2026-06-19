@@ -2,43 +2,43 @@ import asyncio
 import json
 import logging
 
-from backend.app.agents.fir_generator import (
+from app.agents.fir_generator import (
     generate_fir
 )
 
-from backend.app.agents.fir_writer_agent import (
+from app.agents.fir_writer_agent import (
     generate_fir_narrative
 )
 
-from backend.app.agents.legal_agent import (
+from app.agents.legal_agent import (
     recommend_sections
 )
 
-from backend.app.agents.investigation_report_agent import (
+from app.agents.investigation_report_agent import (
     generate_investigation_report
 )
 
-from backend.app.agents.evidence_agent import (
+from app.agents.evidence_agent import (
     analyze_evidence_requirements
 )
 
-from backend.app.agents.case_timeline_agent import (
+from app.agents.case_timeline_agent import (
     generate_case_timeline
 )
 
-from backend.app.agents.risk_assessment_agent import (
+from app.agents.risk_assessment_agent import (
     assess_case_risk
 )
 
-from backend.app.agents.action_recommendation_agent import (
+from app.agents.action_recommendation_agent import (
     recommend_actions
 )
 
-from backend.app.dashboard.police_dashboard_generator import (
+from app.dashboard.police_dashboard_generator import (
     generate_dashboard
 )
 
-from backend.app.utils.performance import (
+from app.utils.performance import (
     cached_call,
     get_slowest_agents,
     timed_agent
@@ -98,7 +98,7 @@ async def run_case_orchestration_async(case_data):
     dossier["fir"] = fir_json
 
     # Warm up master analysis sequentially first to populate the cache
-    from backend.app.agents.master_agent import run_master_analysis
+    from app.agents.master_agent import run_master_analysis
     await run_sync_agent(
         "master_analysis",
         run_master_analysis,

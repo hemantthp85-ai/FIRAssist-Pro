@@ -1,7 +1,7 @@
-from backend.app.rag.retriever import search_bns
-from backend.app.models.qwen_loader import ask_qwen
-from backend.app.utils.performance import timed_agent
-from backend.app.agents.offence_mapper import (
+from app.rag.retriever import search_bns
+from app.models.qwen_loader import ask_qwen
+from app.utils.performance import timed_agent
+from app.agents.offence_mapper import (
     OffenceMapper,
     get_recommended_sections
 )
