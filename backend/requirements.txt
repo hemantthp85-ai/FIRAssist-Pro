@@ -19,3 +19,14 @@ typing-inspection==0.4.2
 typing_extensions==4.15.0
 urllib3==2.6.3
 uvicorn==0.39.0
+qdrant-client
+qdrant-client==1.15.1
+torch
+sentence-transformers
+sqlalchemy
+psycopg2-binary
+python-multipart
+numpy
+pandas
+pydub
+aiofiles
