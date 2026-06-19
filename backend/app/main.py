@@ -1,6 +1,13 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-import logging
+from app.api.routes.fir import router as fir_router
+from app.api.routes.investigation import router as investigation_router
+from app.api.routes.dashboard import router as dashboard_router
+from app.api.routes.forthright import router as forthright_router
+from app.api.routes.evidence_routes import router as evidence_router
+
+from app.models.qwen_loader import warm_qwen_model, get_model_status
+from app.rag.embedder import warm_embedding_model
+from app.db.database import engine, Base
+import app.db.models as db_models
 
 from backend.app.api.routes.fir import router as fir_router
 from backend.app.api.routes.investigation import (
